@@ -2,10 +2,8 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { ENV } from "./index";
 
-// Parse DATABASE_URL from Railway if available
 const getDatabaseConfig = () => {
   if (ENV.DB_URL) {
-    // Railway provides DATABASE_URL in format: postgresql://user:password@host:port/database
     const url = new URL(ENV.DB_URL);
     return {
       type: "postgres" as const,
@@ -13,7 +11,7 @@ const getDatabaseConfig = () => {
       port: Number(url.port),
       username: url.username,
       password: url.password,
-      database: url.pathname.slice(1), // Remove leading slash
+      database: url.pathname.slice(1),
     };
   }
   

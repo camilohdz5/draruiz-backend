@@ -21,7 +21,7 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_DB=draruiz_db
+      - POSTGRES_DB=subscription_db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:

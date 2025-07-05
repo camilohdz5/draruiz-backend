@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { ENV } from '../config';
 
-// Extend Express Request interface
 declare global {
   namespace Express {
     interface Request {

@@ -38,7 +38,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASS=postgres
-DB_NAME=draruiz_db
+DB_NAME=subscription_db
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key
@@ -55,7 +55,7 @@ LOG_LEVEL=info
 
 ```bash
 # Crear base de datos PostgreSQL
-createdb draruiz_db
+createdb subscription_db
 
 # Ejecutar migraciones
 npm run migration:deploy
