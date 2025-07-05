@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 
 export const signUp = async (
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): Promise<Response> => {
   try {
     // Lógica para registrar un usuario
