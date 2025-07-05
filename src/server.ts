@@ -70,11 +70,23 @@ const startServer = async () => {
     
     // Start HTTP server
     const PORT = ENV.PORT;
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port: ${PORT}`);
       console.log(`🌍 Environment: ${ENV.NODE_ENV}`);
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
     });
+    
+    // Graceful shutdown
+    const shutdown = async (signal: string) => {
+      console.log(`\n${signal} received, starting graceful shutdown...`);
+      server.close(() => {
+        console.log('HTTP server closed');
+        process.exit(0);
+      });
+    };
+    
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);

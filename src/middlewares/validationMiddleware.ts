@@ -10,7 +10,7 @@ export const validateRequest = (schema: AnyZodObject) => {
         query: req.query,
         params: req.params,
       });
-      next();
+      return next();
     } catch (error) {
       if (error instanceof ZodError) {
         return res.status(400).json({
@@ -36,7 +36,7 @@ export const rateLimitMiddleware = (maxRequests: number = 100, windowMs: number 
   const requests = new Map<string, { count: number; resetTime: number }>();
   
   return (req: Request, res: Response, next: NextFunction) => {
-    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const now = Date.now();
     
     const userRequests = requests.get(ip);
@@ -55,7 +55,7 @@ export const rateLimitMiddleware = (maxRequests: number = 100, windowMs: number 
     }
     
     userRequests.count++;
-    next();
+    return next();
   };
 };
 
@@ -94,7 +94,7 @@ export const errorHandler = (
   const status = error.status || 500;
   const message = error.message || 'Error interno del servidor';
   
-  res.status(status).json({
+  return res.status(status).json({
     error: status === 500 ? 'Internal Server Error' : 'Error',
     message: ENV.NODE_ENV === 'production' ? 'Error interno del servidor' : message,
     ...(ENV.NODE_ENV === 'development' && { stack: error.stack }),

@@ -4,6 +4,10 @@ export class InitialSetup1752000000000 implements MigrationInterface {
     name = 'InitialSetup1752000000000'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(
+            `CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`
+        );
+
         // Create enum types
         await queryRunner.query(`
             CREATE TYPE "public"."user_platform_enum" AS ENUM('mobile', 'web')
@@ -32,14 +36,14 @@ export class InitialSetup1752000000000 implements MigrationInterface {
                 "biometric_enabled" boolean NOT NULL DEFAULT false,
                 "biometric_data" character varying,
                 "is_active" boolean NOT NULL DEFAULT true,
-                "last_login" TIMESTAMP,
-                "email_verified_at" TIMESTAMP,
+                "last_login" TIMESTAMPTZ,
+                "email_verified_at" TIMESTAMPTZ,
                 "emergency_contact" character varying,
                 "emergency_contact_phone" character varying,
                 "crisis_detection_enabled" boolean NOT NULL DEFAULT false,
-                "therapist_consent_date" TIMESTAMP,
-                "created_at" TIMESTAMP NOT NULL DEFAULT now(),
-                "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "therapist_consent_date" TIMESTAMPTZ,
+                "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+                "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
                 CONSTRAINT "UQ_e12875dfb3b1d92d7d7c5377e22" UNIQUE ("email"),
                 CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id")
             )
@@ -52,7 +56,7 @@ export class InitialSetup1752000000000 implements MigrationInterface {
                 "first_name" character varying,
                 "last_name" character varying,
                 "phone" character varying,
-                "date_of_birth" TIMESTAMP,
+                "date_of_birth" TIMESTAMPTZ,
                 "gender" character varying,
                 "primary_concern" character varying,
                 "current_therapist" character varying,
@@ -64,8 +68,8 @@ export class InitialSetup1752000000000 implements MigrationInterface {
                 "goals" character varying,
                 "preferences" character varying,
                 "metadata" jsonb,
-                "created_at" TIMESTAMP NOT NULL DEFAULT now(),
-                "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+                "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
                 CONSTRAINT "PK_f44d0cd18cfd80b0fed7806c240" PRIMARY KEY ("id")
             )
         `);
@@ -85,8 +89,8 @@ export class InitialSetup1752000000000 implements MigrationInterface {
                 "audio_file_url" character varying,
                 "transcript_url" character varying,
                 "metadata" jsonb,
-                "created_at" TIMESTAMP NOT NULL DEFAULT now(),
-                "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+                "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
                 CONSTRAINT "PK_864528ec4274360a40f66c29845" PRIMARY KEY ("id")
             )
         `);
@@ -110,8 +114,8 @@ export class InitialSetup1752000000000 implements MigrationInterface {
                 "is_flagged" boolean NOT NULL DEFAULT false,
                 "flagged_reason" character varying,
                 "metadata" jsonb,
-                "created_at" TIMESTAMP NOT NULL DEFAULT now(),
-                "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+                "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
                 CONSTRAINT "PK_be8bd3c9c231c4a4e928c62847" PRIMARY KEY ("id")
             )
         `);

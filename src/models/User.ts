@@ -8,10 +8,13 @@ import {
   UpdateDateColumn,
   OneToMany,
   Index,
+  BeforeInsert,
+  BeforeUpdate,
 } from "typeorm";
 import { UserProfile } from "./UserProfile";
 import { UserSubscription } from "./UserSubscription";
 import { Conversation } from "./Conversation";
+import { encrypt, decrypt } from '../utils/crypto';
 
 @Entity()
 @Index(["email"])
@@ -62,4 +65,18 @@ export class User {
 
   @UpdateDateColumn()
   updated_at!: Date;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  encryptSensitiveFields() {
+    if (this.biometric_data && !this.biometric_data.startsWith('enc:')) {
+      this.biometric_data = 'enc:' + encrypt(this.biometric_data);
+    }
+  }
+
+  getBiometricDataDecrypted() {
+    return this.biometric_data?.startsWith('enc:') ? decrypt(this.biometric_data.slice(4)) : this.biometric_data;
+  }
+
 }
+  
