@@ -70,12 +70,28 @@ export class User {
   @BeforeUpdate()
   encryptSensitiveFields() {
     if (this.biometric_data && !this.biometric_data.startsWith('enc:')) {
-      this.biometric_data = 'enc:' + encrypt(this.biometric_data);
+      try {
+        this.biometric_data = 'enc:' + encrypt(this.biometric_data);
+      } catch (error) {
+        console.error('Failed to encrypt biometric data:', error);
+        throw new Error('Biometric data encryption failed');
+      }
     }
   }
 
   getBiometricDataDecrypted() {
-    return this.biometric_data?.startsWith('enc:') ? decrypt(this.biometric_data.slice(4)) : this.biometric_data;
+    if (!this.biometric_data) {
+      return undefined;
+    }
+    if (!this.biometric_data.startsWith('enc:')) {
+      return this.biometric_data;
+    }
+    try {
+      return decrypt(this.biometric_data.slice(4));
+    } catch (error) {
+      console.error('Failed to decrypt biometric data:', error);
+      throw new Error('Biometric data decryption failed');
+    }
   }
 
 }

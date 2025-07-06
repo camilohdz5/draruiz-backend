@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject, ZodError } from 'zod';
-import { ENV } from '../config';
 
 export const validateRequest = (schema: AnyZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -15,7 +14,7 @@ export const validateRequest = (schema: AnyZodObject) => {
       if (error instanceof ZodError) {
         return res.status(400).json({
           error: 'Validation Error',
-          message: 'Datos de entrada inválidos',
+          message: 'Invalid input data',
           details: error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
@@ -26,7 +25,7 @@ export const validateRequest = (schema: AnyZodObject) => {
       console.error('Validation middleware error:', error);
       return res.status(500).json({
         error: 'Internal Server Error',
-        message: 'Error interno del servidor',
+        message: 'Internal server error',
       });
     }
   };
@@ -49,7 +48,7 @@ export const rateLimitMiddleware = (maxRequests: number = 100, windowMs: number 
     if (userRequests.count >= maxRequests) {
       return res.status(429).json({
         error: 'Too Many Requests',
-        message: 'Demasiadas solicitudes. Intenta de nuevo más tarde.',
+        message: 'Too many requests. Please try again later.',
         retryAfter: Math.ceil((userRequests.resetTime - now) / 1000),
       });
     }
@@ -68,35 +67,53 @@ export const errorHandler = (
 ) => {
   console.error('Error handler:', error);
   
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+  const errorStack = error instanceof Error ? error.stack : undefined;
+  const errorName = error instanceof Error ? error.name : 'UnknownError';
+  
   // Handle specific error types
-  if (error.name === 'ValidationError') {
+  if (errorName === 'ValidationError') {
     return res.status(400).json({
       error: 'Validation Error',
-      message: error.message,
+      message: errorMessage,
+      origin: 'validation.middleware',
+      ...(process.env.NODE_ENV === 'development' && { stack: errorStack }),
     });
   }
   
-  if (error.name === 'UnauthorizedError') {
+  if (errorName === 'UnauthorizedError') {
     return res.status(401).json({
       error: 'Unauthorized',
-      message: 'No autorizado',
+      message: 'Unauthorized',
+      origin: 'auth.middleware',
+      ...(process.env.NODE_ENV === 'development' && { stack: errorStack }),
     });
   }
   
-  if (error.name === 'NotFoundError') {
+  if (errorName === 'NotFoundError') {
     return res.status(404).json({
       error: 'Not Found',
-      message: 'Recurso no encontrado',
+      message: 'Resource not found',
+      origin: 'route.handler',
+      ...(process.env.NODE_ENV === 'development' && { stack: errorStack }),
     });
   }
   
   // Default error
   const status = error.status || 500;
-  const message = error.message || 'Error interno del servidor';
+  const message = errorMessage || 'Internal server error';
   
   return res.status(status).json({
     error: status === 500 ? 'Internal Server Error' : 'Error',
-    message: ENV.NODE_ENV === 'production' ? 'Error interno del servidor' : message,
-    ...(ENV.NODE_ENV === 'development' && { stack: error.stack }),
+    message: process.env.NODE_ENV === 'production' ? 'Internal server error' : message,
+    origin: 'global.error.handler',
+    ...(process.env.NODE_ENV === 'development' && { 
+      stack: errorStack,
+      details: {
+        name: errorName,
+        status: status,
+        timestamp: new Date().toISOString()
+      }
+    }),
   });
 }; 

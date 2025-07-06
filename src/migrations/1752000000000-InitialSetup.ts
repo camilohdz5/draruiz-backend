@@ -38,8 +38,6 @@ export class InitialSetup1752000000000 implements MigrationInterface {
                 "is_active" boolean NOT NULL DEFAULT true,
                 "last_login" TIMESTAMPTZ,
                 "email_verified_at" TIMESTAMPTZ,
-                "emergency_contact" character varying,
-                "emergency_contact_phone" character varying,
                 "crisis_detection_enabled" boolean NOT NULL DEFAULT false,
                 "therapist_consent_date" TIMESTAMPTZ,
                 "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),

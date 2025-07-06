@@ -19,7 +19,7 @@ RUN npm run build
 # Remove dev dependencies
 RUN npm prune --production
 
-# Install curl for healthcheck
+# Install curl for healthcheck (before changing user)
 RUN apk add --no-cache curl
 
 # Create non-root user
