@@ -1,16 +1,50 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
+import { ENV } from "./index";
+
+const getDatabaseConfig = () => {
+  if (ENV.DB_URL) {
+    const url = new URL(ENV.DB_URL);
+    return {
+      type: "postgres" as const,
+      host: url.hostname,
+      port: Number(url.port),
+      username: url.username,
+      password: url.password,
+      database: url.pathname.slice(1),
+    };
+  }
+  
+  return {
+    type: "postgres" as const,
+    host: ENV.DB_HOST,
+    port: ENV.DB_PORT,
+    username: ENV.DB_USER,
+    password: ENV.DB_PASS,
+    database: ENV.DB_NAME,
+  };
+};
 
 export const AppDataSource = new DataSource({
-  type: "postgres",
-  host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 5432,
-  username: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASS || "postgres",
-  database: process.env.DB_NAME || "subscription_db",
-  synchronize: true,
-  logging: false,
+  ...getDatabaseConfig(),
+  synchronize: ENV.NODE_ENV === "development", // Only in development
+  logging: ENV.NODE_ENV === "development",
   entities: [__dirname + "/../models/*.{ts,js}"],
   migrations: [__dirname + "/../migrations/*.{ts,js}"],
   subscribers: [],
+  ssl: ENV.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+  extra: {
+    connectionLimit: 10,
+  },
 });
+
+// Initialize database connection
+export const initializeDatabase = async () => {
+  try {
+    await AppDataSource.initialize();
+    console.log("✅ Database connection established");
+  } catch (error) {
+    console.error("❌ Database connection failed:", error);
+    process.exit(1);
+  }
+};
