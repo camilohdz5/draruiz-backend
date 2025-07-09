@@ -61,7 +61,7 @@ model User {
   biometric_enabled Boolean            @default(false)
   biometric_data   String?             // Encriptado manualmente
   is_active        Boolean             @default(true)
-  last_login       DateTime?
+  last_login       DateTime?           @db.Timestamp(6)
   profile          UserProfile?        @relation(fields: [profileId], references: [id])
   profileId        String?   @unique
   subscriptions    UserSubscription[]
@@ -70,6 +70,10 @@ model User {
   created_at       DateTime            @default(now())
   updated_at       DateTime            @updatedAt
   is_subscription_active Boolean       @default(false)
+
+  @@index([is_active])
+  @@index([last_login])
+  @@index([is_subscription_active])
 }
 
 model UserProfile {
@@ -97,6 +101,10 @@ model Conversation {
   messages       Message[]
   created_at     DateTime         @default(now())
   updated_at     DateTime         @updatedAt
+
+  @@index([user_id])
+  @@index([status])
+  @@index([created_at])
 }
 
 model Message {
@@ -113,12 +121,16 @@ model Message {
   user          User?               @relation(fields: [user_id], references: [id])
   created_at    DateTime            @default(now())
   updated_at    DateTime            @updatedAt
+
+  @@index([conversation_id])
+  @@index([user_id])
+  @@index([created_at])
 }
 
 model SubscriptionPlan {
   id                    String   @id @default(uuid())
   name                  String
-  price                 Float
+  price                 Decimal  @db.Decimal(10,2)
   currency              String
   interval              String
   platform_availability String[]
