@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// Prisma schema migrated from TypeORM
+// pgvector support included
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// Extension para pgvector
+// https://www.prisma.io/docs/orm/prisma-schema/data-model#vector
+// Asegúrate de tener la extensión instalada en la base de datos
+
+enum UserPlatform {
+  mobile
+  web
+}
+
+enum ConversationStatus {
+  active
+  archived
+  deleted
+}
+
+enum MessageSender {
+  user
+  assistant
+}
+
+enum MessageContentType {
+  text
+  audio
+  voice
+}
+
+enum SubscriptionStatus {
+  active
+  canceled
+  past_due
+  unpaid
+}
+
+model User {
+  id               String              @id @default(uuid())
+  email            String              @unique
+  password_hash    String
+  platform         UserPlatform        @default(mobile)
+  is_verified      Boolean             @default(false)
+  biometric_enabled Boolean            @default(false)
+  biometric_data   String?             // Encriptado manualmente
+  is_active        Boolean             @default(true)
+  last_login       DateTime?
+  profile          UserProfile?        @relation(fields: [profileId], references: [id])
+  profileId        String?   @unique
+  subscriptions    UserSubscription[]
+  conversations    Conversation[]
+  messages         Message[]           // Relación inversa para Message
+  created_at       DateTime            @default(now())
+  updated_at       DateTime            @updatedAt
+  is_subscription_active Boolean       @default(false)
+}
+
+model UserProfile {
+  id         String   @id @default(uuid())
+  first_name String?
+  last_name  String?
+  phone      String?
+  metadata   Json?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user       User?
+}
+
+model Conversation {
+  id             String           @id @default(uuid())
+  user_id        String
+  title          String?
+  status         ConversationStatus @default(active)
+  summary        String?
+  mood_score     Int?
+  audio_file_url String?
+  transcript_url String?
+  metadata       Json?
+  user           User             @relation(fields: [user_id], references: [id])
+  messages       Message[]
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+}
+
+model Message {
+  id            String              @id @default(uuid())
+  conversation_id String
+  user_id       String?
+  sender        MessageSender       @default(user)
+  content_type  MessageContentType  @default(text)
+  audio_url     String?
+  ai_model_used String?
+  tokens_used   Int?
+  metadata      Json?
+  conversation  Conversation        @relation(fields: [conversation_id], references: [id])
+  user          User?               @relation(fields: [user_id], references: [id])
+  created_at    DateTime            @default(now())
+  updated_at    DateTime            @updatedAt
+}
+
+model SubscriptionPlan {
+  id                    String   @id @default(uuid())
+  name                  String
+  price                 Float
+  currency              String
+  interval              String
+  platform_availability String[]
+  features              String[]
+  subscriptions         UserSubscription[]
+}
+
+model UserSubscription {
+  id                   String   @id @default(uuid())
+  user_id              String
+  plan_id              String
+  status               SubscriptionStatus
+  current_period_start DateTime
+  current_period_end   DateTime
+  cancel_at_period_end Boolean  @default(false)
+  platform_source      String
+  user                 User     @relation(fields: [user_id], references: [id])
+  plan                 SubscriptionPlan @relation(fields: [plan_id], references: [id])
+}
+
+// Ejemplo de modelo con pgvector
+model EmbeddingExample {
+  id         Int     @id @default(autoincrement())
+  embedding  Unsupported("vector(3)")
+  description String?
+}
