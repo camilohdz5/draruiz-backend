@@ -1,6 +1,6 @@
 export const ENV = {
   // Server
-  PORT: process.env.PORT || 3000,
+  PORT: process.env.PORT || 4000,
   NODE_ENV: process.env.NODE_ENV || "development",
   
   // Database
@@ -22,6 +22,7 @@ export const ENV = {
   
   // Security
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:3000",
+  ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
   
   // Logging
   LOG_LEVEL: process.env.LOG_LEVEL || "info",

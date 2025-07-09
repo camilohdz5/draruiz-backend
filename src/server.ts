@@ -1,12 +1,17 @@
 import "reflect-metadata";
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { ENV } from "./config";
-import { initializeDatabase } from "./config/data-source";
+import { PrismaClient } from "./generated/prisma";
 import authRoutes from "./routes/auth.routes";
 
+// Load environment variables
+dotenv.config();
+
 const app = express();
+const prisma = new PrismaClient();
 
 // Security middleware
 app.use(helmet());
@@ -65,10 +70,7 @@ app.use((error: any, _req: express.Request, res: express.Response, _next: expres
 // Start server
 const startServer = async () => {
   try {
-    // Initialize database
-    await initializeDatabase();
-    
-    // Start HTTP server
+    // Prisma Client is ready to use
     const PORT = ENV.PORT;
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port: ${PORT}`);
@@ -79,6 +81,7 @@ const startServer = async () => {
     // Graceful shutdown
     const shutdown = async (signal: string) => {
       console.log(`\n${signal} received, starting graceful shutdown...`);
+      await prisma.$disconnect();
       server.close(() => {
         console.log('HTTP server closed');
         process.exit(0);
