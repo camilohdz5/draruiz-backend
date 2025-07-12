@@ -45,6 +45,15 @@ CORS_ORIGIN=http://localhost:3000
 
 # Logging
 LOG_LEVEL=info
+
+# Email Configuration (for verification emails)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+
+# Frontend URL (for verification links)
+FRONTEND_URL=http://localhost:3000
 ```
 
 ### 3. Set up the database
@@ -108,6 +117,9 @@ Railway will automatically detect your project and deploy your application.
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - Login
 - `POST /api/auth/refresh` - Refresh token
+- `POST /api/auth/verify-email` - Verify email with token
+- `POST /api/auth/resend-verification` - Resend verification email
+- `GET /api/auth/profile` - Get user profile
 
 ### Conversations (future)
 - `GET /api/conversations` - List conversations
