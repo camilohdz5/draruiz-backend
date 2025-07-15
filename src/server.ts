@@ -4,8 +4,11 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { ENV } from "./config";
-import { PrismaClient } from "./generated/prisma";
+import { PrismaClient } from '@prisma/client';
 import authRoutes from "./routes/auth.routes";
+import path from 'path';
+import { engine } from 'express-handlebars';
+import { authService } from './services/auth.service';
 
 // Load environment variables
 dotenv.config();
@@ -21,8 +24,27 @@ app.use(cors({
 }));
 
 // Body parsing middleware
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Configuración de Handlebars
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, '../views'));
+
+// Ruta temporal para verificación de email
+app.get('/verify-email', async (req, res) => {
+  const { token } = req.query;
+  if (!token || typeof token !== 'string') {
+    return res.render('verify-email', { success: false, message: 'Token inválido o ausente.' });
+  }
+  try {
+    const result = await authService.verifyEmail(token);
+    res.render('verify-email', { success: true, message: result.message });
+  } catch (error: any) {
+    res.render('verify-email', { success: false, message: error.message || 'Error al verificar el email.' });
+  }
+});
 
 // Health check endpoint
 app.get("/health", (_req, res) => {

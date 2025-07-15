@@ -13,6 +13,16 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+// Email verification schema
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1, 'Verification token is required'),
+});
+
+// Resend verification email schema
+export const resendVerificationSchema = z.object({
+  email: z.string().email('Invalid email'),
+});
+
 // Update profile schema
 export const updateProfileSchema = z.object({
   first_name: z.string().min(1, 'First name is required').optional(),
@@ -30,5 +40,7 @@ export const tokenSchema = z.object({
 // Inferred types from schemas
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
+export type ResendVerificationInput = z.infer<typeof resendVerificationSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type TokenInput = z.infer<typeof tokenSchema>; 
