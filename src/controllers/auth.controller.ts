@@ -87,7 +87,7 @@ export const resendVerification = async (req: Request, res: Response) => {
   }
 };
 
-export const getProfile = async (req: Request, res: Response) => {
+export const getProfile = async (req: Request, res: Response): Promise<Response> => {
   try {
     // This will be implemented with JWT middleware
     const userId = (req as any).user?.userId;
@@ -99,7 +99,7 @@ export const getProfile = async (req: Request, res: Response) => {
     }
 
     const user = await authService.getUserById(userId);
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       user
     });
@@ -108,7 +108,7 @@ export const getProfile = async (req: Request, res: Response) => {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     const errorStack = error instanceof Error ? error.stack : undefined;
     
-    res.status(400).json({
+    return res.status(400).json({
       error: 'Get profile failed',
       message: errorMessage,
       details: process.env.NODE_ENV === 'development' ? {

@@ -6,6 +6,7 @@ import helmet from "helmet";
 import { ENV } from "./config";
 import { PrismaClient } from '@prisma/client';
 import authRoutes from "./routes/auth.routes";
+import stripeRoutes from "./routes/stripe.routes";
 import path from 'path';
 import { engine } from 'express-handlebars';
 import { authService } from './services/auth.service';
@@ -23,7 +24,10 @@ app.use(cors({
   credentials: true,
 }));
 
-// Body parsing middleware
+// Raw body for Stripe webhooks (¡debe ir antes de express.json!)
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+
+// Body parsing middleware para el resto de rutas
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -57,6 +61,7 @@ app.get("/health", (_req, res) => {
 
 // API routes
 app.use("/api/auth", authRoutes);
+app.use("/api/stripe", stripeRoutes);
 
 // Root endpoint
 app.get("/", (_req, res) => {
