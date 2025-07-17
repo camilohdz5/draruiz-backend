@@ -1,5 +1,5 @@
-import nodemailer from 'nodemailer';
-import crypto from 'crypto';
+import * as nodemailer from 'nodemailer';
+import * as crypto from 'crypto';
 
 export interface EmailVerificationData {
   email: string;

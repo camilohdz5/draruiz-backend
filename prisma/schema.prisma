@@ -72,6 +72,7 @@ model User {
   verification_token String?
   verification_token_expires DateTime?
   email_verified_at DateTime?
+  stripe_customer_id String?           // Stripe Customer ID
 
   @@index([is_active])
   @@index([last_login])
@@ -151,6 +152,8 @@ model UserSubscription {
   platform_source      String
   user                 User     @relation(fields: [user_id], references: [id])
   plan                 SubscriptionPlan @relation(fields: [plan_id], references: [id])
+
+  @@unique([user_id, plan_id])
 }
 
 // Ejemplo de modelo con pgvector

@@ -4,9 +4,10 @@
   "description": "Handle Subcriptions template for projects",
   "main": "src/server.ts",
   "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "seed:plans": "ts-node src/scripts/seed-subscription-plans.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -22,6 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "@prisma/client": "^6.11.1",
+    "@types/stripe": "^8.0.416",
     "axios": "^1.10.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
@@ -34,6 +36,7 @@
     "pg": "^8.16.2",
     "prisma": "^6.11.1",
     "reflect-metadata": "^0.2.2",
+    "stripe": "^18.3.0",
     "zod": "^3.25.74"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import { emailService } from './email.service';
 
 const prisma = new PrismaClient();
@@ -114,13 +114,17 @@ export class AuthService {
       });
 
       // Generate JWT token
+      if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET is not configured');
+      }
+      
       const token = jwt.sign(
         { 
-          userId: user.id, 
+          id: user.id, 
           email: user.email,
-          isVerified: user.is_verified 
+          platform: user.platform
         },
-        process.env.JWT_SECRET!,
+        Buffer.from(process.env.JWT_SECRET, 'utf8'),
         { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
       );
 
@@ -242,17 +246,6 @@ export class AuthService {
       const user = await prisma.user.findUnique({
         where: { id: userId },
         include: {
-          profile: true,
-        },
-        select: {
-          id: true,
-          email: true,
-          is_verified: true,
-          platform: true,
-          is_active: true,
-          is_subscription_active: true,
-          last_login: true,
-          created_at: true,
           profile: true,
         }
       });
